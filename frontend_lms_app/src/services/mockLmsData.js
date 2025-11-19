@@ -1,6 +1,7 @@
 //
 // Mock LMS Data Service for Employee & Admin Dashboards
 // Provides typed models (JSDoc style), async API mocks for all dashboard UIs.
+// Also provides mock module detail + quiz APIs for ModuleViewer and Quiz
 //
 
 /**
@@ -95,6 +96,124 @@ export async function getEmployeeDashboardData() {
       // More modules could be added
     ],
   };
+}
+
+/**
+ * Gets a detailed learning module by ID, with sample content and quiz.
+ * The content is HTML (may insert more modules as needed).
+ * @param {number} moduleId
+ * @returns {Promise<{id, title, description, content, quiz: {title, questions:array}}>}
+ */
+export async function getModuleById(moduleId) {
+  await new Promise((res) => setTimeout(res, 80));
+  // Demo static modules & quiz
+  const demoModules = {
+    103: {
+      id: 103,
+      title: "Security Training",
+      description: "Core principles for digital security and safe working.",
+      content: `
+        <p>Welcome to the Security Training module. You will learn about:</p>
+        <ul>
+          <li>Why strong passwords are important</li>
+          <li>How to avoid phishing emails</li>
+          <li>Company privacy rules</li>
+        </ul>
+        <p><strong>Tip:</strong> Never share your password. Always verify email senders before clicking links.</p>
+      `,
+      quiz: {
+        title: "Security Check!",
+        questions: [
+          {
+            id: "q1", type: "mc", required: true,
+            prompt: "Which is the strongest password?",
+            choices: [
+              "password123", "Company2024", "$jGFzA9#19!"
+            ],
+            answer: "$jGFzA9#19!",
+          },
+          {
+            id: "q2", type: "tf", required: true,
+            prompt: "You should click any link that appears to come from IT support.",
+            answer: "False",
+          }
+        ]
+      }
+    },
+    104: {
+      id: 104,
+      title: "Git & Version Control",
+      description: "Managing teamwork and codebase using Git.",
+      content: `
+        <p>This module covers:</p>
+        <ul>
+          <li>Basic git workflow: init, clone, commit, push, pull</li>
+          <li>Resolving conflicts and branching</li>
+          <li>Why version control matters for engineering teams</li>
+        </ul>
+        <p>Remember, always commit regularly and write meaningful commit messages!</p>
+      `,
+      quiz: {
+        title: "Git Basics Mini-Quiz",
+        questions: [
+          {
+            id: "q1",
+            type: "mc",
+            required: true,
+            prompt: "What command creates a new local Git repository?",
+            choices: ["git clone", "git init", "git commit"],
+            answer: "git init"
+          },
+          {
+            id: "q2",
+            type: "tf",
+            required: true,
+            prompt: "You should write commit messages that clearly describe your changes.",
+            answer: "True"
+          }
+        ]
+      }
+    }
+  };
+  // fallback for demo
+  return (
+    demoModules[moduleId] || Object.values(demoModules)[0]
+  );
+}
+
+/**
+ * Validates quiz answers, returns result object.
+ * @param {number} moduleId
+ * @param {{[qid]: answer}} answers
+ * @returns {Promise<{passed: boolean, score: number, error?:string}>}
+ */
+export async function submitQuizAnswers(moduleId, answers) {
+  await new Promise(res => setTimeout(res, 80));
+  const mod = await getModuleById(moduleId);
+  if (!mod || !mod.quiz || !mod.quiz.questions) return { passed: false, score: 0 };
+  let correct = 0, total = mod.quiz.questions.length;
+  for (const q of mod.quiz.questions) {
+    if ((answers[q.id] || "").toString().trim() === (q.answer || "").toString().trim()) {
+      correct += 1;
+    }
+  }
+  const scorePct = Math.round((correct / total) * 100);
+  return {
+    passed: scorePct >= 60,
+    score: scorePct
+  };
+}
+
+/**
+ * Updates module progress (mock: no-op, but returns Promise)
+ * @param {number} moduleId
+ * @param {{status: string, score?: number}} progress
+ * @returns {Promise<void>}
+ */
+export async function updateModuleProgress(moduleId, progress) {
+  // Here we could call Supabase or backend (for now, just resolve)
+  await new Promise(res => setTimeout(res, 60));
+  return;
 }
 
 /**
@@ -213,7 +332,5 @@ export async function getAdminDashboardData() {
   return { users, tracks, submissions };
 }
 
-//
 // For IDE/completion: type exports (no effect in JS)
-//
 export const type = {}; // {AdminUser, ModuleTrack, Submission}

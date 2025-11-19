@@ -9,6 +9,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ModulesPage from "./pages/ModulesPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import EditorPage from "./pages/EditorPage";
+import ModuleViewer from "./pages/ModuleViewer";
+import { useParams } from "react-router-dom";
 import { Tokens } from "./theme";
 import { AuthProvider, useAuth } from "./AuthContext";
 
@@ -48,6 +50,7 @@ function App() {
                 <Route path="dashboard" element={<EmployeeDashboard />} />
                 <Route path="admin" element={<RequireAdmin><AdminDashboard /></RequireAdmin>} />
                 <Route path="modules" element={<ModulesPage />} />
+                <Route path="modules/:moduleId" element={<ModuleViewerWrapper />} />
                 <Route path="projects" element={<ProjectsPage />} />
                 <Route path="editor" element={<EditorPage />} />
               </Route>
@@ -85,6 +88,13 @@ function RequireAdmin({ children }) {
   if (loading) return null;
   if (!isAdmin) return <Navigate to="/dashboard" replace />;
   return children;
+}
+
+function ModuleViewerWrapper() {
+  const { moduleId } = useParams();
+  // Only allow integer IDs for demo
+  const parsedId = parseInt(moduleId, 10) || 103;
+  return <ModuleViewer moduleId={parsedId} />;
 }
 
 export default App;
