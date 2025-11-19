@@ -1,5 +1,6 @@
 import React from "react";
 import Editor from "../components/Editor";
+import { saveFile, submitFile } from "../services/editorService";
 
 /**
  * In-browser code editor page for coding challenges.
@@ -7,21 +8,12 @@ import Editor from "../components/Editor";
  */
 // PUBLIC_INTERFACE
 export default function EditorPage() {
-  // Mock save/submit – will be replaced with real service
+  // These handlers delegate to our dedicated service, ensuring error handling/edge cases
   const handleSave = async (file) => {
-    // Simulate success or error
-    if (!file.content.trim()) {
-      throw new Error("Cannot save an empty file.");
-    }
-    // stub, succeed after short delay
-    await new Promise(res => setTimeout(res, 110));
-    // Optionally: save to localStorage/session for demo
+    await saveFile(file);
   };
   const handleSubmit = async (file) => {
-    if (file.content.indexOf("print") === -1) {
-      throw new Error("For demo, code must include a print statement!");
-    }
-    await new Promise(res => setTimeout(res, 200));
+    await submitFile(file);
   };
 
   return (
