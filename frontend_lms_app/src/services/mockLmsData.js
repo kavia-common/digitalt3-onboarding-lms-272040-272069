@@ -1,7 +1,10 @@
 //
-// Mock LMS Data Service for Employee & Admin Dashboards
+// DigitalT3 LMS Mock Data Service for Employee & Admin Dashboards
 // Provides typed models (JSDoc style), async API mocks for all dashboard UIs.
 // Also provides mock module detail + quiz APIs for ModuleViewer and Quiz
+//
+// NOTE: For the live API, use the exported { apiRequest } from "../api/client.js".
+// This mock module is still required for dev/local use and as a fallback when API_BASE/ BACKEND_URL are not set.
 //
 
 /**
@@ -334,3 +337,6 @@ export async function getAdminDashboardData() {
 
 // For IDE/completion: type exports (no effect in JS)
 export const type = {}; // {AdminUser, ModuleTrack, Submission}
+
+// --- Re-export API client for transition to real API ---
+export { apiRequest } from "../api/client";
