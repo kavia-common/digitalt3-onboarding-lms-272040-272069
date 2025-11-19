@@ -1,48 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import "./App.css";
+import "./index.css";
+import Layout from "./components/Layout";
+import LoginPage from "./pages/LoginPage";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import ModulesPage from "./pages/ModulesPage";
+import ProjectsPage from "./pages/ProjectsPage";
+import EditorPage from "./pages/EditorPage";
+import { Tokens } from "./theme";
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState("light");
 
-  // Effect to apply theme to document element
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    // Apply Ocean Professional theme tokens
+    Object.entries(Tokens.color).forEach(([k, v]) => {
+      document.documentElement.style.setProperty(`--${k}`, v);
+    });
   }, [theme]);
-
   // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));
+
+  // Dummy admin switch, replace with real role check in future
+  const [isAdmin] = useState(false);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
+    <Router>
+      <div className="App" style={{ background: "var(--background)", color: "var(--text)" }}>
+        <button
+          className="theme-toggle"
           onClick={toggleTheme}
           aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
         >
           {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
         </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          {/* Protected routes: layout with sidebar/nav */}
+          <Route
+            path="/"
+            element={<Layout isAdmin={isAdmin} />}
+          >
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<EmployeeDashboard />} />
+            <Route path="admin" element={<AdminDashboard />} />
+            <Route path="modules" element={<ModulesPage />} />
+            <Route path="projects" element={<ProjectsPage />} />
+            <Route path="editor" element={<EditorPage />} />
+          </Route>
+          {/* fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
